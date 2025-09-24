@@ -7,7 +7,7 @@ DOMAIN_NAME="daws86.space"
 
 for instance in $@ # mongodb redis mysql
 do
-    INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --instance-type t3.micro --security-group-ids $SG_ID --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance}]" --query 'Instances[0].InstanceId' --output text)
+    INSTANCE_ID=$(aws ec2 run-instances --image-id ami-09c813fb71547fc4f --instance-type t3.micro --security-group-ids sg-0d1e1b3241c4a66bd --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance}]" --query 'Instances[0].InstanceId' --output text)
 
     # Get Private IP
     if [ $instance != "frontend" ]; then
@@ -19,3 +19,4 @@ do
     fi
 
     echo "$instance: $IP"
+ done
