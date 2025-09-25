@@ -8,17 +8,17 @@ N="\e[0m"
 
 LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
-LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log" # /var/log/shell-script/16-logs.log
+LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 
 mkdir -p $LOGS_FOLDER
 echo "Script started executed at: $(date)" | tee -a $LOG_FILE
 
 if [ $USERID -ne 0 ]; then
-    echo "ERROR:: Please run this script with root privelege"
-    exit 1 # failure is other than 0
+    echo "ERROR:: Please run this script with root privilege"
+    exit 1
 fi
 
-VALIDATE(){ # functions receive inputs through args just like shell script args
+VALIDATE(){
     if [ $1 -ne 0 ]; then
         echo -e "$2 ... $R FAILURE $N" | tee -a $LOG_FILE
         exit 1
@@ -27,18 +27,29 @@ VALIDATE(){ # functions receive inputs through args just like shell script args
     fi
 }
 
-cp mongo.repo /etc/yum.repos.d/mongo.repo
+# ✅ Add MongoDB repo
+tee /etc/yum.repos.d/mongodb.repo > /dev/null <<EOF
+[mongodb-org-4.2]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/amazon/2/mongodb-org/4.2/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc
+EOF
 VALIDATE $? "Adding Mongo repo"
 
-dnf install mongodb-org -y &>>$LOG_FILE
+# Install MongoDB
+yum install -y mongodb-org &>>$LOG_FILE
 VALIDATE $? "Installing MongoDB"
 
-systemctl enable mongodb &>>$LOG_FILE
+# Enable and start service
+systemctl enable mongod &>>$LOG_FILE
 VALIDATE $? "Enable MongoDB"
 
-systemctl start mongodb 
+systemctl start mongod &>>$LOG_FILE
 VALIDATE $? "Start MongoDB"
 
+# Allow remote connections
 sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
 VALIDATE $? "Allowing remote connections to MongoDB"
 
