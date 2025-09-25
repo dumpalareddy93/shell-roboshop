@@ -1,6 +1,6 @@
 #!/bin/bash
 
-AMI_ID="ami-09c813fb71547fc4f"
+AMI_ID="ami-ami-09c813fb71547fc4f"
 SG_ID="sg-0d1e1b3241c4a66bd" # replace with your SG ID
 ZONE_ID="Z10225341OKKJ5ODTVYKC" # replace with your ID
 DOMAIN_NAME="daws86.space"
